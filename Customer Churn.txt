@@ -1,0 +1,64 @@
+# Hi!, This project aims to predict the customer churn using a dataset from Kaggle, I have kept it simple enough for anyone to read and #
+# understand this project's approach and use it accordingly.I have not visualised the data to keep it simple. Hope it helps.                                                             #
+
+#Importing necessary libraries
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+#Giving source to the computer
+df = pd.read_csv('customer_churn_data.csv')
+
+#dropping duplicate values
+df.drop_duplicates(inplace = True)
+
+#handling missing values
+
+df['InternetService'].fillna(df['InternetService'].mode()[0], inplace=True)
+df.dropna(axis = 0, inplace = True)
+
+
+#Encoding non-numerical data to numbers
+le = LabelEncoder()
+for col in df.select_dtypes(include='object').columns:
+    df[col] = le.fit_transform(df[col])
+
+#Scaling Data so that numerical values are on same scale(useful for algorithms like SVM, KNN)
+
+scaler = StandardScaler()
+numeric_columns = ['Age', 'Tenure', 'MonthlyCharges', 'TotalCharges']
+df[numeric_columns] = scaler.fit_transform(df[numeric_columns])
+
+##MODEL SELECTION BEGINS FROM HERE
+#Selecting train test split
+
+X = df.drop(columns = ['Churn'])
+y = df['Churn']
+X_train, X_test, y_train, y_test = train_test_split( X, y, test_size = 0.2,random_state = 42)
+
+#Applying all used modules
+
+models = {
+    'Random Forest Classifier' : RandomForestClassifier(),
+    'Logistic Regression' : LogisticRegression()}
+for i in models:
+    obj = models[i]
+    obj.fit(X_train,y_train)
+    obj_pred = obj.predict(X_test)
+
+    accuracy = accuracy_score(y_test,obj_pred)
+    c_matrix = confusion_matrix(y_test, obj_pred)
+    c_report = classification_report(y_test, obj_pred)
+
+# Printing the final results
+
+print("Accuracy: ", accuracy)
+print("\nConfusion Matrix: ", c_matrix)
+print("\nClassification Report: ", c_report)
+
+
+#If you have any queries, my email is shyam9214563063@gmail.com, feel free to contact.
